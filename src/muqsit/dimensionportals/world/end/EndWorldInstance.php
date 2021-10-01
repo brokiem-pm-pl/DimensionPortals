@@ -10,7 +10,7 @@ use pocketmine\network\mcpe\protocol\types\DimensionIds;
 final class EndWorldInstance extends WorldInstance{
 
 	public function getNetworkDimensionId() : int{
-		return DimensionIds::THE_END;
+		return DimensionIds::OVERWORLD;
 	}
 
 	public function onChunkLoad(int $chunkX, int $chunkZ) : void{
