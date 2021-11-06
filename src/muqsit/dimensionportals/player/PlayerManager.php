@@ -12,6 +12,7 @@ use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\protocol\MovePlayerPacket;
 use pocketmine\network\mcpe\protocol\PlayerActionPacket;
 use pocketmine\network\mcpe\protocol\StartGamePacket;
+use pocketmine\network\mcpe\protocol\types\PlayerAction;
 use pocketmine\network\mcpe\protocol\types\SpawnSettings;
 use pocketmine\player\Player;
 use pocketmine\scheduler\ClosureTask;
@@ -36,13 +37,13 @@ final class PlayerManager{
 			$world = WorldManager::get($target->getPlayer()->getWorld());
 			if($world !== null){
 				$dimensionId = $world->getNetworkDimensionId();
-				if($dimensionId !== $packet->spawnSettings->getDimension()){
+                if($dimensionId !== $packet->levelSettings->spawnSettings->getDimension()){
 					$pk = clone $packet;
-					$pk->spawnSettings = new SpawnSettings(
-						$packet->spawnSettings->getBiomeType(),
-						$packet->spawnSettings->getBiomeName(),
-						$world->getNetworkDimensionId()
-					);
+                    $pk->levelSettings->spawnSettings = new SpawnSettings(
+                        $packet->levelSettings->spawnSettings->getBiomeType(),
+                        $packet->levelSettings->spawnSettings->getBiomeName(),
+                        $world->getNetworkDimensionId()
+                    );
 					$target->sendDataPacket($pk);
 					return false;
 				}
@@ -53,7 +54,7 @@ final class PlayerManager{
 		});
 
 		SimplePacketHandler::createMonitor($plugin)->monitorIncoming(static function(PlayerActionPacket $packet, NetworkSession $origin) : void{
-			if($packet->action === PlayerActionPacket::ACTION_DIMENSION_CHANGE_ACK){
+            if($packet->action === PlayerAction::DIMENSION_CHANGE_ACK){
 				$player = $origin->getPlayer();
 				if($player !== null && $player->isConnected()){
 					PlayerManager::get($player)->onEndDimensionChange();
@@ -91,7 +92,6 @@ final class PlayerManager{
 	}
 
 	public static function stopTicking(Player $player) : void{
-		unset(self::$ticking[$player->getId()]);
-		unset(self::$_changing_dimension_sessions[spl_object_id($player->getNetworkSession())]);
-	}
+        unset(self::$ticking[$player->getId()], self::$_changing_dimension_sessions[spl_object_id($player->getNetworkSession())]);
+    }
 }

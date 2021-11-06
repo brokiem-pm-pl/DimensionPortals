@@ -18,9 +18,6 @@ class PlayerCreatePortalEvent extends DimensionPortalsEvent implements Cancellab
 
 	private Position $block_pos;
 
-	/** @var Block[] */
-	private array $affected_blocks;
-
 	public function __construct(Player $player, Position $block_pos){
 		$this->player = $player;
 		$this->block_pos = $block_pos;
